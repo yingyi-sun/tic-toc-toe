@@ -36,13 +36,21 @@
     </div>
 </body>
 <script>
-    const history = [];
+    let switchNum;
+    let flag = false;
+    let history = [];
     const board = document.querySelector('.board');
     const title = document.querySelector('.title');
     const ol = document.querySelector('ol');
     board.onclick = function(e) {
+        if (flag) {
+            history = history.slice(0, switchNum);
+            renderBoard(history);
+            renderButton(history);
+            flag = false;
+        }
+
         let obj = {};
-        console.log(e.target.value);
 
         let current = getCurrent(history);
         e.target.innerHTML = current[0];
@@ -64,6 +72,8 @@
         if (e.target.value !== 0) {
             newHis = history.slice(0, e.target.value);
         }
+        switchNum = e.target.value;
+        flag = true;
         renderBoard(newHis);
 
     }
@@ -122,6 +132,17 @@
             title.innerHTML = "Next player: X ";
         }
 
+    }
+
+    function renderButton(history) {
+        let index = history.length;
+        let lis = ol.querySelectorAll('li');
+        lis = Array.from(lis).slice(0, index + 1);
+        let ht = [];
+        lis.forEach(value => {
+            ht.push('<li>' + value.innerHTML + '</li>');
+        })
+        ol.innerHTML = ht.join('');
     }
 </script>
 
