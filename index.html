@@ -43,28 +43,30 @@
     const title = document.querySelector('.title');
     const ol = document.querySelector('ol');
     board.onclick = function(e) {
+
         if (flag) {
             history = history.slice(0, switchNum);
             renderBoard(history);
             renderButton(history);
             flag = false;
         }
-
-        let obj = {};
-
+        if (history.some(value => {
+                return value === e.target.value || judgeWinner() !== null;
+            })) {
+            return;
+        }
         let current = getCurrent(history);
         e.target.innerHTML = current[0];
-        obj.index = e.target.value;
-        obj.current = current[0];
-        obj.next = current[1];
-        history.push(obj);
+        history.push(e.target.value);
         let li = document.createElement('li');
         li.innerHTML = `<button value=${history.length}>Go to move #${history.length}</button>`;
         ol.appendChild(li);
         let winner = judgeWinner();
-        title.innerHTML = winner === null ? 'Next player: ' + current[1] : 'Winner: ' + winner;
-        history[history.length - 1].title = title.innerHTML;
-
+        if (winner !== null) {
+            title.innerHTML = 'Winner: ' + winner;
+        } else {
+            title.innerHTML = 'Next player: ' + current[1];
+        }
 
     }
     ol.onclick = function(e) {
@@ -82,12 +84,7 @@
     function getCurrent(history) {
         let hisLength = history.length;
         let res = [];
-        if (!hisLength) {
-            res = ['X', 'O'];
-        } else {
-            res.push(history[hisLength - 1].next, history[hisLength - 1].current);
-
-        }
+        res = hisLength % 2 == 0 ? ['X', 'O'] : ['O', 'X'];
         return res;
     }
 
@@ -108,7 +105,7 @@
             let [a, b, c] = value;
             console.log(squares[a].innerHTML.length);
             if (squares[a].innerHTML.length > 0 && squares[a].innerHTML === squares[b].innerHTML && squares[a].innerHTML === squares[c].innerHTML) {
-                winner = squares[a].innerHTML
+                winner = squares[a].innerHTML;
                 return true;
             }
         })
@@ -121,16 +118,23 @@
         for (let i = 0; i < squares.length; i++) {
             squares[i].innerHTML = "";
         }
-        history.forEach(value => {
+        history.forEach((value, index) => {
 
-            squares[value.index].innerHTML = value.current;
+            squares[value].innerHTML = index % 2 == 0 ? 'X' : 'O';
 
         });
-        if (history.length > 0) {
-            title.innerHTML = history[history.length - 1].title;
+        let winner = judgeWinner();
+        if (winner !== null) {
+            title.innerHTML = "Winner:" + winner;
         } else {
-            title.innerHTML = "Next player: X ";
+            if (history.length % 2 !== 0) {
+                title.innerHTML = "Next player: O ";
+            } else {
+                title.innerHTML = "Next player: X ";
+
+            }
         }
+
 
     }
 
